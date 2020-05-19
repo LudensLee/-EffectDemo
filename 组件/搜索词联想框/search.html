@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./assets/search.css">
+</head>
+
+<body>
+    <div class="search-box" @mouseleave="clearResp">
+        <input class="search-txt" type="text" name="" placeholder="Type to search" v-model="searchInput">
+        <a class="search-btn" href="#">
+            <i class="iconfont">&#xe603;</i>
+        </a>
+        <ul class="search-keywords" v-show="returnKeyWords">
+            <li class="keywords-item" v-for="keyword in returnKeyWords">
+                <a :href="searchBaseURL + keyword" class="keywords-value" target="_blank">{{ keyword }}</a>
+            </li>
+        </ul>
+    </div>
+    <script src="./vue.js"></script>
+    <script src="./axios.js"></script>
+    <script src="./jquery.js"></script>
+    <script>
+        const vSearch = new Vue({
+            el: ".search-box",
+            data: {
+                returnKeyWords: [],
+                searchInput: "",
+                inputTimer: undefined,
+                searchBaseURL: "https://www.baidu.com/s?ie=utf-8&wd="
+            },
+            mounted() {
+                window.jsonpCallback = (resp) => {
+                    this.returnKeyWords = resp.s
+                }
+            },
+            methods: {
+                clearResp() {
+                    this.searchInput = "",
+                        this.returnKeyWords = []
+                }
+            },
+            watch: {
+                searchInput() {
+                    if (this.inputTimer) {
+                        clearTimeout(this.inputTimer)
+                    }
+                    this.inputTimer = setTimeout(() => {
+                        $.ajax({
+                            dataType: 'jsonp',
+                            url: 'https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su',
+                            data: {
+                                wd: this.searchInput,
+                                cb: 'jsonpCallback'
+                            }
+                        });
+                        this.inputTimer = undefined;
+                    }, 1000)
+
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
